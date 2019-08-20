@@ -1,0 +1,56 @@
+README
+
+Lucas Godfrey, 2019
+
+
+
+SETUP
+
+This demo requires Jupyter (Anaconda Python Distribution), Neo4j Community Server, and the Neo4j Spatial Server Plugin. The server plugin is to be saved to the plugins folder and the data is to be saved in the import folder in your copy of Neo.
+
+The demo has been tested on Mac only using Python3, Neo4j Community 3.5.6 and Neo4j Spatial 0.26.2.
+
+To run the demo, cd into the bin directory of your Neo application folder, then run './neo4j console'.
+
+To run Jupyter the notebook and data need to be saved to your path, and png files need to be saved to an img folder in the path. You can simply run 'jupyter notebook' from terminal on Mac to open the directory and access the notebook.
+
+Additional modules for import are to be found in this repository and must also be included in your path.
+
+You will also need to update the username and password for your database instance in the notebook. 
+
+
+INTRODUCTION
+
+This notebook provides a walk-through demonstration of the concepts and techniques developed in the Simulated Cognitive Topology research project. The project has explored the automatic selection of map content based on empirical insights into natural cognitive representations of geographic environments that are stable across demographic groups, levels of familiarity with technology and types of navigational behaviour.
+
+The demonstration provides a worked example that includes the creation of a graph in an instance of neo4j community server, and queries on the graph to retrieve highly contextual multiscale geographic (navigational) information. The demo includes both spatial and pattern-matching techniques, and so requires that the graph has a spatial index. The neo4j spatial server plugin is therefore required for creating and querying the RTREE. Any additional dependencies not explicitly provided are all standard python modules that a user of Jupyter notebooks will already have installed. 
+
+Additional modules are included that have been developed over the course of the project - please refer to the module files for additional comments. 
+
+While the underlying use-case in this example concerns the navigation of complex urban journeys in which the traveler must traverse multiple types of network, the underlying approach could be adapted to any route-based scenario, with the routing network forming the overall basis of the graph architecture and subsequent queries. 
+
+
+BACKGROUND
+
+This notebook supports the OS Research SharePoint site that provides an introduction to the SCT graph application research. 
+
+The context of the user in terms of a specific navigational task leads to the need for heterogenous sets of information. In other words, while two journeys may intersect or overlap in terms of spatial location, context may lead to very different information needs, even in these spatially co-located regions. From a technical perspective, the basic issue with supporting information systems that are able to express this type of context-dependent selection is the ability to formally express 'latent context'. It is not possible to store highly contextual information in the way that you might store pre-determined map tiles, for example, and so by 'latent' we mean data structures and algorithms that allow highly context-specific sets of information to 'materialise' out of a flexible underlying data model. 
+
+The approach taken throughout the course of this project has been to develop both a conceptual and practical framework rooted in empirical research into situated cognition (i.e. validated and refined through hypothesis testing in situated navigation tasks). This notebook provides a practical demonstration of the approach through the use of a graph database technology as the underlying basis for reasoning about an example journey context. 
+
+In Figure 5. we show a visualisation of the final selection, with the process explained step-by-step from basic geographic data structures through to the example selection. Through this demo it should hopefully become clear how the routing network serves as the foundation of the overall graph architecture and queries, and that to effectively model and retrieve information in a way that expresses an approximation to a 'natural' cognitive representation, techniques are required that return features from the graph through topological methods (traversal/ pattern matching), as well as through the spatial index. In a navigational use case, this can be thought of as a formal expression of the interplay between route and survey orientation strategies in terms of the traveller's overarching Origin-Destination task. 
+
+
+DEMO OVERVIEW
+
+Data is provided for the demo. Once loaded into the database the demo graph has 201,187 vertices and 201,490 edges.  
+
+The routing result is an ordered, labelled set of traversed routing nodes, assumed to have been returned from a routing engine after an O-D query.
+
+The routing result is used as the basis for returning features from the database, by using both pattern matching and by using the spatial index. The routing result is also processed to create journey context data in the form OF propagation matrices assigned to each k-level routing node. 
+
+A causal net is constructed by using the Vertices and Edges returned through pattern matching as the basis for Variable and Arc objects. This structure is then used to run variable activation in the form of message propagation by using the propagation matrices to determine the flow of messages over the net. Once constructed the causal net should have 425 arcs and 341 variables.
+
+Message propagation occurs over 5 passes using a recursive propagation function, each representing a conceptual scale in the demo use case (i.e. urban pedestrian navigation over journeys that traverse multiple transport networks). The output of message propagation is a list of features that represents the core selection for the current context, and a reference to the index position of each feature in the list at each conceptual scale at which the presence of the feature should persist in interactive view space (e.g. in an interactive mobile map).
+
+This result is visualised by representing each feature as a point, and displaying vectors through a simplified 3D view space (a cube) to show the persistence of each feature based on the model, given the current context. A map view therefore, is equivalent to a lateral slice through this probabilistic view space for some view space location/ image space width (i.e. map scale). By 'lateral slice' we mean a square subset of a plane across the view space for some view space location/ image space width (i.e. a given zoom level).
